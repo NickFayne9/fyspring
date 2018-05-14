@@ -99,7 +99,7 @@ public class DispatchServlet extends HttpServlet {
     }
 
     private void doRegistry() {
-        if(beanDefinitionMap.isEmpty()){
+        if(classNames.isEmpty()){
             return;
         }
 
@@ -158,7 +158,7 @@ public class DispatchServlet extends HttpServlet {
 
                 field.setAccessible(true);
                 try {
-                    field.set(entry.getValue(), entry.getValue());
+                    field.set(entry.getValue(), beanDefinitionMap.get(beanName));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
