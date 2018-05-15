@@ -167,51 +167,7 @@ public class DispatchServlet extends HttpServlet {
     }
 
     private void initHandlerMapping() {
-        if(classNames.isEmpty()){ return;}
-
-        try{
-
-            for(String className : classNames){
-                Class<?> clazz = Class.forName(className);
-
-
-                //在Spring中用的多个子方法来处理的
-                if(clazz.isAnnotationPresent(Controller.class)){
-
-                    String beanName = lowerFirstCase(clazz.getSimpleName());
-
-                    //在Spring中在这个阶段不是不会直接put instance，这里put的是BeanDefinition
-                    beanDefinitionMap.put(beanName,clazz.newInstance());
-
-                }else if(clazz.isAnnotationPresent(Service.class)){
-
-                    Service service = clazz.getAnnotation(Service.class);
-
-                    String beanName = service.value();
-                    if("".equals(beanName.trim())){
-                        beanName = lowerFirstCase(clazz.getSimpleName());
-                    }
-
-                    Object instance = clazz.newInstance();
-
-                    beanDefinitionMap.put(beanName,instance);
-
-                    Class<?>[] interfaces = clazz.getInterfaces();
-
-                    for (Class<?> i :interfaces){
-                        beanDefinitionMap.put(i.getName(),instance);
-                    }
-
-                }else{
-                    continue;
-                }
-
-            }
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        
 
     }
 
