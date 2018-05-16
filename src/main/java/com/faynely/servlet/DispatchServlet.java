@@ -60,15 +60,18 @@ public class DispatchServlet extends HttpServlet {
         //自动依赖注入
         doAutowired();
 
-
         initHandlerMapping();
     }
 
+    /**
+     * 加载 application.properties 资源
+     * @param contextConfigLocation
+     */
     private void doLoadConfig(String contextConfigLocation) {
+        //
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(contextConfigLocation.replace("classpath:", ""));
         try {
             contextConfig.load(inputStream);
-            System.out.println("加载资源完成");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -82,6 +85,10 @@ public class DispatchServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 将 application.properties 中 scanPackages 包名下所有的 class 存入 classNames
+     * @param packageName
+     */
     private void doScanner(String packageName) {
         URL url = this.getClass().getClassLoader().getResource("/" + packageName.replaceAll("\\.", "/"));
 
@@ -98,6 +105,9 @@ public class DispatchServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 实例化 classNames 中的需要被 IOC 类，并放入 IOC 容器
+     */
     private void doRegistry() {
         if(classNames.isEmpty()){
             return;
@@ -108,22 +118,20 @@ public class DispatchServlet extends HttpServlet {
                 Class<?> clazz = Class.forName(className);
 
                 if(clazz.isAnnotationPresent(Controller.class)){
-                    String beanName = lowerFirstCase(clazz.getSimpleName());
-
+                    String beanName = clazz.getName();
                     beanDefinitionMap.put(beanName, clazz.newInstance());
                 } else if(clazz.isAnnotationPresent(Service.class)){
                     Service service = clazz.getAnnotation(Service.class);
+                    String beanName = clazz.getPackage().getName() + "." + service.value();
 
-                    String beanName = service.value();
-                    if("".equals(beanName)){
-                        beanName = lowerFirstCase(clazz.getSimpleName());
+                    if("".equals(service.value())){
+                        beanName = clazz.getName();
                     }
 
                     Object instance = clazz.newInstance();
                     beanDefinitionMap.put(beanName, instance);
 
                     Class<?>[] interfaces = clazz.getInterfaces();
-
                     for(Class<?> i : interfaces){
                         beanDefinitionMap.put(i.getName(), instance);
                     }
@@ -137,6 +145,9 @@ public class DispatchServlet extends HttpServlet {
 
     }
 
+    /**
+     * 依赖注入：
+     */
     private void doAutowired() {
         if(beanDefinitionMap.isEmpty()){
             return;
@@ -167,15 +178,14 @@ public class DispatchServlet extends HttpServlet {
     }
 
     private void initHandlerMapping() {
-        
+
 
     }
 
-    private String lowerFirstCase(String str){
-        char [] chars = str.toCharArray();
+    private String lowerFirstCase(String className){
+        char [] chars = className.toCharArray();
         chars[0] += 32;
         return String.valueOf(chars);
     }
-
 
 }
