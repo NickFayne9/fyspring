@@ -23,5 +23,18 @@ fyspring 是一个简化版的 spring，主要是学习 spring 优秀的编程�
 spring 的 IOC 流程主要分为三步：定位，加载，注册。
 
 定位：找到配置文件。
+
 加载：将配置文件中的类名存入 List 中。
+
 注册：将标记为需要 spring 托管的类进行实例化，以全限定类名为 key，类实例为 value，存入 IOC 容器。（具体 spring 并不是这样做的，这里简化了一下）
+
+![](https://github.com/NickFayne9/git-resource/blob/master/fyspring/customSpring1.png?raw=true)
+
+这里看一下 spring 中的类名 List 和 IOC 容器 Map 之间的关系。
+
+![](https://github.com/NickFayne9/git-resource/blob/master/fyspring/customSpringClassRelation%20.png?raw=true)
+
+下面请看 v1.0.0 的类图。其实就一个类。
+
+![](https://github.com/NickFayne9/git-resource/blob/master/fyspring/customSpringClass.png?raw=true)
+
