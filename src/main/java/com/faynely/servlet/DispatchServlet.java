@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ *
  * @author NickFayne 2018-05-13 22:54
  */
 @WebServlet(urlPatterns = "/*", initParams = {@WebInitParam(name = "contextConfigLocation", value = "classpath:application-context.properties")})
@@ -30,7 +31,7 @@ public class DispatchServlet extends HttpServlet {
 
     private Properties contextConfig = new Properties();
 
-    private Map<String, Object> beanDefinitionMap = new ConcurrentHashMap<>();
+    private Map<String, Object> beanMap = new ConcurrentHashMap<>();
 
     private List<String> classNames = new ArrayList<>();
 
@@ -68,20 +69,12 @@ public class DispatchServlet extends HttpServlet {
      * @param contextConfigLocation
      */
     private void doLoadConfig(String contextConfigLocation) {
-        //
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(contextConfigLocation.replace("classpath:", ""));
         try {
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(contextConfigLocation.replaceAll("classpath:", ""));
             contextConfig.load(inputStream);
-        } catch (IOException e) {
+            inputStream.close();
+        } catch (Exception e){
             e.printStackTrace();
-        } finally {
-            if(null != inputStream){
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -91,16 +84,15 @@ public class DispatchServlet extends HttpServlet {
      */
     private void doScanner(String packageName) {
         URL url = this.getClass().getClassLoader().getResource("/" + packageName.replaceAll("\\.", "/"));
+        File files = new File(url.getFile());
 
-        File classDir = new File(url.getFile());
+        File[] classFiles = files.listFiles();
 
-        File[] classFiles = classDir.listFiles();
-
-        for(File file : classFiles){
-            if(file.isDirectory()){
-                doScanner(packageName + "." + file.getName());
+        for(File classFile : classFiles){
+            if(classFile.isDirectory()){
+                doScanner(packageName + "." + classFile.getName());
             }else {
-                classNames.add(packageName + "." + file.getName().replace(".class", ""));
+                classNames.add(packageName + "." + classFile.getName().replaceAll(".class", ""));
             }
         }
     }
@@ -113,34 +105,32 @@ public class DispatchServlet extends HttpServlet {
             return;
         }
 
-        try {
-            for(String className : classNames){
+        for(String className : classNames){
+            try {
                 Class<?> clazz = Class.forName(className);
 
                 if(clazz.isAnnotationPresent(Controller.class)){
                     String beanName = clazz.getName();
-                    beanDefinitionMap.put(beanName, clazz.newInstance());
+                    beanMap.put(beanName, clazz.newInstance());
                 } else if(clazz.isAnnotationPresent(Service.class)){
-                    Service service = clazz.getAnnotation(Service.class);
-                    String beanName = clazz.getPackage().getName() + "." + service.value();
-
-                    if("".equals(service.value())){
-                        beanName = clazz.getName();
-                    }
-
+                    String beanName = clazz.getName();
                     Object instance = clazz.newInstance();
-                    beanDefinitionMap.put(beanName, instance);
+                    beanMap.put(beanName, instance);
 
-                    Class<?>[] interfaces = clazz.getInterfaces();
-                    for(Class<?> i : interfaces){
-                        beanDefinitionMap.put(i.getName(), instance);
+                    Class[] interfaces = clazz.getInterfaces();
+                    for(Class i : interfaces){
+                        beanMap.put(i.getName(), instance);
                     }
                 } else {
                     continue;
                 }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
             }
-        } catch (Exception e){
-            e.printStackTrace();
         }
 
     }
@@ -149,27 +139,19 @@ public class DispatchServlet extends HttpServlet {
      * 依赖注入：
      */
     private void doAutowired() {
-        if(beanDefinitionMap.isEmpty()){
+        if(beanMap.isEmpty()){
             return;
         }
 
-        for(Map.Entry<String, Object> entry : beanDefinitionMap.entrySet()){
-            Field[] fileds = entry.getValue().getClass().getDeclaredFields();
+        for(Map.Entry<String, Object> entry : beanMap.entrySet()){
+            Object instance = entry.getValue();
+            Class<?> clazz = instance.getClass();
 
-            for(Field field : fileds){
-                if(!(field.isAnnotationPresent(Autowired.class))){
-                    continue;
-                }
+            Field[] fields = clazz.getDeclaredFields();
 
-                Autowired autowired = field.getAnnotation(Autowired.class);
-                String beanName = autowired.value().trim();
-                if("".equals(beanName)){
-                    beanName = field.getType().getName();
-                }
-
-                field.setAccessible(true);
+            for(Field field : fields){
                 try {
-                    field.set(entry.getValue(), beanDefinitionMap.get(beanName));
+                    field.set(instance, beanMap.get(field.getType().getName()));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
