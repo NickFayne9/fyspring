@@ -54,7 +54,7 @@ public class ApplicationContext implements BeanFactory {
         System.out.println();
     }
 
-    public void populateBean(String beanName, Object instance){
+    private void populateBean(String beanName, Object instance){
         Class clazz = instance.getClass();
 
         if(clazz.isAnnotationPresent(Controller.class) || clazz.isAnnotationPresent(Service.class)){
@@ -132,7 +132,7 @@ public class ApplicationContext implements BeanFactory {
 
         BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
 
-        String className = beanDefinition.getBeanClassName();
+        //String className = beanDefinition.getBeanClassName();
 
         try{
             BeanPostProcessor beanPostProcessor = new BeanPostProcessor();

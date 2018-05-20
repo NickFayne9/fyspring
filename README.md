@@ -42,5 +42,30 @@ spring 的 IOC 流程主要分为三步：定位，加载，注册。
 
 在第一版中，所有的方法都集中在一个类中，这样明显是不合理的。
 
-在真正的 Spring 中，有好多个类来管理这4个流程。（定位，加载，注册，依赖反转）
+在第二版的 Spring 中，有好多个类来管理这4个流程。（定位，加载，注册，依赖反转）
 
+## 类图
+
+先看类图，第一眼，肯定有点懵。
+
+![](https://github.com/NickFayne9/git-resource/blob/master/fyspring/spring2ClassRelation.png?raw=true)
+
+## BeanFactory
+   
+   顶层接口，提供一个 getBean(String beanName); 方法的规范。
+   
+## ApplicationContext 
+    
+   实现了 BeanFactory，对用户的入口，完成**定位、加载、注册、依赖注入**四大动作。
+   
+## BeanDefinition
+    
+   在 JVM 内存中保存 Bean 配置信息。（是否为单例，是否懒加载...）
+
+## BeanWrapper
+
+   对反射生成的对象的一种增强，使用装饰器模式。这里可以看出，并没有实现同一个接口，因为比较简洁，所以这个细节没有注意，后期会考虑加上。
+   
+## BeanPostProcessor
+
+   对生成对象的前后增加一些自定义的操作。
