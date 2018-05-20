@@ -38,3 +38,9 @@ spring 的 IOC 流程主要分为三步：定位，加载，注册。
 
 ![](https://github.com/NickFayne9/git-resource/blob/master/fyspring/customSpringClass.png?raw=true)
 
+# v2.0.0
+
+在第一版中，所有的方法都集中在一个类中，这样明显是不合理的。
+
+在真正的 Spring 中，有好多个类来管理这4个流程。（定位，加载，注册，依赖反转）
+

@@ -1,7 +1,7 @@
 package com.faynely.test.controller;
 
-import com.faynely.annotation.Autowired;
-import com.faynely.annotation.Controller;
+import com.faynely.framework.annotation.Autowired;
+import com.faynely.framework.annotation.Controller;
 import com.faynely.test.service.LoginService;
 
 /**

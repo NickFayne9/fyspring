@@ -1,6 +1,6 @@
 package com.faynely.test.service;
 
-import com.faynely.annotation.Service;
+import com.faynely.framework.annotation.Service;
 
 /**
  * @author NickFayne 2018-05-14 23:41

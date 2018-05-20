@@ -1,4 +1,4 @@
-package com.faynely.annotation;
+package com.faynely.framework.annotation;
 
 import java.lang.annotation.*;
 

@@ -1,8 +1,7 @@
-package com.faynely.servlet;
+package com.faynely.webmvc.servlet;
 
-import com.faynely.annotation.Autowired;
-import com.faynely.annotation.Controller;
-import com.faynely.annotation.Service;
+import com.faynely.framework.annotation.Controller;
+import com.faynely.framework.annotation.Service;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
