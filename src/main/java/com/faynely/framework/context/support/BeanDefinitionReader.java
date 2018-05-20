@@ -15,7 +15,7 @@ import java.util.Properties;
  */
 public class BeanDefinitionReader {
 
-    private Properties config;
+    private Properties config = new Properties();
 
     private List<String> registryBeanClasses = new ArrayList<>();
 
